@@ -352,146 +352,319 @@ function exportPDF(name, pScores, wScores, pKeys, wKeys) {
   const doc = new jsPDF({ unit: "mm", format: "letter" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
-  let y = 20;
-  const margin = 20;
+  let y = 0;
+  const margin = 18;
   const lineW = W - margin * 2;
 
+  // Color helpers
+  const hex = (c) => {
+    const r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), b = parseInt(c.slice(5,7),16);
+    return [r,g,b];
+  };
+  const NAVY = "#3D405B", CORAL = "#E07A5F", GREEN = "#81B29A", GOLD = "#D4A04A", BLUE = "#6A8EAE", PURPLE = "#A8577E";
+
   function checkPage(need) {
-    if (y + need > H - 20) { doc.addPage(); y = 20; }
+    if (y + need > H - 18) { doc.addPage(); y = 18; }
   }
 
-  // Title
-  doc.setFont("helvetica", "bold"); doc.setFontSize(24); doc.setTextColor(45, 45, 45);
-  doc.text(`${name}'s Complete Profile`, W / 2, y, { align: "center" }); y += 8;
-  doc.setFontSize(11); doc.setFont("helvetica", "normal"); doc.setTextColor(150);
-  doc.text("Know Yourself \u2014 Personality & Wellness Assessment", W / 2, y, { align: "center" }); y += 4;
-  doc.text(new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), W / 2, y, { align: "center" }); y += 12;
+  // Draw a colored bar/score indicator
+  function drawBar(x, barY, w, val, color) {
+    doc.setFillColor(230, 230, 225);
+    doc.roundedRect(x, barY, w, 3.5, 1.75, 1.75, "F");
+    const [r,g,b] = hex(color);
+    doc.setFillColor(r, g, b);
+    doc.roundedRect(x, barY, w * (val/100), 3.5, 1.75, 1.75, "F");
+  }
 
-  // Top 3 Priorities
-  const top3 = getTop3(pScores, wScores, name);
-  doc.setDrawColor(200); doc.line(margin, y, W - margin, y); y += 8;
-  doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(61, 64, 91);
-  doc.text("\u{1F3AF} YOUR TOP 3 PRIORITIES", margin, y); y += 6;
-  doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(120);
-  doc.text("If you do nothing else, focus here. Ranked by impact based on your unique profile.", margin, y); y += 8;
-  top3.forEach(p => {
-    checkPage(30);
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(45, 45, 45);
-    doc.text(`#${p.rank}  ${p.icon} ${p.label} (${p.score}%)`, margin, y); y += 6;
-    doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(80);
-    const whyLines = doc.splitTextToSize(p.why, lineW);
-    doc.text(whyLines, margin, y); y += whyLines.length * 4.5 + 2;
-    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(61, 64, 91);
-    doc.text("Your One Action:", margin, y); y += 4;
-    doc.setFont("helvetica", "normal"); doc.setTextColor(80);
-    const doLines = doc.splitTextToSize(p.doThis, lineW);
-    doc.text(doLines, margin, y); y += doLines.length * 4 + 8;
+  // Draw a section header with colored left bar
+  function sectionHeader(title, color) {
+    checkPage(14);
+    const [r,g,b] = hex(color);
+    doc.setFillColor(r, g, b);
+    doc.rect(margin, y, 3, 10, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.setTextColor(...hex(NAVY));
+    doc.text(title, margin + 7, y + 7);
+    y += 14;
+  }
+
+  // ── COVER PAGE ──
+  // Background header block
+  doc.setFillColor(...hex(NAVY));
+  doc.rect(0, 0, W, 72, "F");
+
+  // Accent line
+  doc.setFillColor(...hex(GREEN));
+  doc.rect(0, 72, W, 2, "F");
+
+  // Title text
+  doc.setFont("helvetica", "bold"); doc.setFontSize(32); doc.setTextColor(255, 255, 255);
+  doc.text("Know Yourself", W/2, 30, { align: "center" });
+  doc.setFontSize(13); doc.setFont("helvetica", "normal"); doc.setTextColor(200, 200, 210);
+  doc.text("Personality & Wellness Profile", W/2, 40, { align: "center" });
+
+  // Name
+  doc.setFont("helvetica", "bold"); doc.setFontSize(20); doc.setTextColor(255, 255, 255);
+  doc.text(name, W/2, 56, { align: "center" });
+  doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(180, 180, 195);
+  doc.text(new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), W/2, 64, { align: "center" });
+
+  y = 84;
+
+  // ── SCORE OVERVIEW BOXES ──
+  doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(...hex(NAVY));
+  doc.text("PERSONALITY SNAPSHOT", margin, y); y += 6;
+
+  const pColors = { openness: CORAL, conscientiousness: NAVY, extraversion: GOLD, agreeableness: GREEN, neuroticism: PURPLE };
+  pKeys.forEach(k => {
+    const d = BIG5[k], s = pScores[k], c = pColors[k] || NAVY;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(100,100,100);
+    doc.text(d.label, margin, y + 2.5);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(...hex(c));
+    doc.text(`${s}%`, margin + 42, y + 2.5);
+    drawBar(margin + 50, y, lineW - 50, s, c);
+    y += 7;
   });
 
-  // Personality Section
-  doc.setDrawColor(200); doc.line(margin, y, W - margin, y); y += 8;
-  doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(61, 64, 91);
-  doc.text("Personality Profile (Big Five)", margin, y); y += 8;
+  y += 6;
+  doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(...hex(NAVY));
+  doc.text("WELLNESS SNAPSHOT", margin, y); y += 6;
+
+  const wColors = { mental: BLUE, social: GREEN, intellectual: CORAL, financial: GOLD, occupational: NAVY };
+  wKeys.forEach(k => {
+    const d = WELL[k], s = wScores[k], c = wColors[k] || NAVY;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(100,100,100);
+    doc.text(d.label.replace(" Wellness",""), margin, y + 2.5);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(...hex(c));
+    doc.text(`${s}%`, margin + 42, y + 2.5);
+    drawBar(margin + 50, y, lineW - 50, s, c);
+    y += 7;
+  });
+
+  y += 8;
+
+  // ── TOP 3 PRIORITIES ──
+  const top3 = getTop3(pScores, wScores, name);
+  // Box background
+  doc.setFillColor(245, 243, 238);
+  doc.roundedRect(margin - 2, y - 2, lineW + 4, 8 + top3.length * 28, 4, 4, "F");
+  doc.setFillColor(...hex(CORAL));
+  doc.roundedRect(margin - 2, y - 2, lineW + 4, 9, 4, 4, "F");
+  doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(255,255,255);
+  doc.text("YOUR TOP 3 PRIORITIES", margin + 3, y + 4.5);
+  y += 12;
+
+  top3.forEach(p => {
+    const [r,g,b] = hex(p.color);
+    // Number circle
+    doc.setFillColor(r,g,b);
+    doc.circle(margin + 5, y + 1, 4, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(255,255,255);
+    doc.text(`${p.rank}`, margin + 5, y + 2, { align: "center" });
+    // Label and score
+    doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(45,45,45);
+    doc.text(`${p.label}`, margin + 13, y + 2);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(r,g,b);
+    doc.text(`${p.score}%`, margin + 13 + doc.getTextWidth(p.label) + 3, y + 2);
+    y += 6;
+    // Why
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(100,100,100);
+    const whyL = doc.splitTextToSize(p.why, lineW - 14);
+    doc.text(whyL, margin + 13, y); y += whyL.length * 3.5 + 1;
+    // Action
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(r,g,b);
+    doc.text("DO THIS:", margin + 13, y); 
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(80,80,80);
+    const doL = doc.splitTextToSize(p.doThis, lineW - 28);
+    doc.text(doL, margin + 28, y); y += doL.length * 3.5 + 6;
+  });
+
+  y += 4;
+
+  // ── PERSONALITY DETAIL PAGES ──
+  doc.addPage(); y = 18;
+  // Page header
+  doc.setFillColor(...hex(NAVY));
+  doc.rect(0, 0, W, 16, "F");
+  doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(255,255,255);
+  doc.text("Personality Profile \u2014 Big Five / OCEAN", W/2, 11, { align: "center" });
+  y = 24;
 
   pKeys.forEach(k => {
-    checkPage(40);
-    const d = BIG5[k], s = pScores[k], ins = P_INS[k][pLvl(s)];
-    // Trait header
-    doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(45, 45, 45);
-    doc.text(`${d.label}: ${s}%  \u2014  ${ins.title}`, margin, y); y += 6;
+    checkPage(55);
+    const d = BIG5[k], s = pScores[k], ins = P_INS[k][pLvl(s)], c = pColors[k] || NAVY;
+    const [r,g,b] = hex(c);
+
+    // Colored left border
+    doc.setFillColor(r,g,b);
+    doc.rect(margin, y, 2.5, 6, "F");
+
+    // Trait name + score
+    doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(45,45,45);
+    doc.text(d.label, margin + 6, y + 4.5);
+    doc.setFontSize(13); doc.setTextColor(r,g,b);
+    doc.text(`${s}%`, W - margin, y + 4.5, { align: "right" });
+
+    // Score bar
+    drawBar(margin + 6, y + 7, lineW - 6, s, c);
+    y += 13;
+
+    // Type title
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(r,g,b);
+    doc.text(ins.title, margin + 6, y); y += 5;
+
     // Description
-    doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(80);
-    const descLines = doc.splitTextToSize(ins.desc, lineW);
-    doc.text(descLines, margin, y); y += descLines.length * 4.5 + 2;
-    // Real life
-    doc.setFont("helvetica", "italic"); doc.setFontSize(9); doc.setTextColor(100);
-    const rlLines = doc.splitTextToSize("Real Life: " + ins.realLife, lineW);
-    checkPage(rlLines.length * 4);
-    doc.text(rlLines, margin, y); y += rlLines.length * 4 + 2;
-    // Strengths
-    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(80);
-    doc.text("Strengths: ", margin, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(ins.strengths.join(" \u2022 "), margin + 18, y); y += 5;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9.5); doc.setTextColor(80,80,80);
+    const descL = doc.splitTextToSize(ins.desc, lineW - 6);
+    doc.text(descL, margin + 6, y); y += descL.length * 4 + 2;
+
+    // Real life (in a tinted box)
+    checkPage(15);
+    doc.setFillColor(245, 243, 238);
+    const rlText = doc.splitTextToSize("In Real Life: " + ins.realLife, lineW - 14);
+    const rlH = rlText.length * 3.8 + 6;
+    doc.roundedRect(margin + 4, y - 1, lineW - 4, rlH, 2, 2, "F");
+    doc.setFont("helvetica", "italic"); doc.setFontSize(8.5); doc.setTextColor(100,100,100);
+    doc.text(rlText, margin + 8, y + 3); y += rlH + 2;
+
+    // Strengths as colored tags (simulated)
+    checkPage(10);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(r,g,b);
+    doc.text("STRENGTHS", margin + 6, y); y += 4;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(80,80,80);
+    doc.text(ins.strengths.join("  \u00B7  "), margin + 6, y); y += 5;
+
     // Watch outs
-    doc.setFont("helvetica", "bold");
-    doc.text("Watch For: ", margin, y);
-    doc.setFont("helvetica", "normal");
-    const woText = doc.splitTextToSize(ins.watchOuts.join(" \u2022 "), lineW - 20);
-    doc.text(woText, margin + 20, y); y += woText.length * 4 + 2;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(180,80,60);
+    doc.text("WATCH FOR", margin + 6, y); y += 4;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(80,80,80);
+    const woL = doc.splitTextToSize(ins.watchOuts.join("  \u00B7  "), lineW - 6);
+    doc.text(woL, margin + 6, y); y += woL.length * 3.8 + 3;
+
     // Exercises
-    checkPage(20);
-    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(61, 64, 91);
-    doc.text("Try This Week:", margin, y); y += 4;
-    doc.setFont("helvetica", "normal"); doc.setTextColor(80);
+    checkPage(18);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(r,g,b);
+    doc.text("TRY THIS WEEK", margin + 6, y); y += 4;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(80,80,80);
     ins.exercises.forEach(e => {
-      checkPage(10);
-      const eLines = doc.splitTextToSize("\u2192 " + e, lineW - 4);
-      doc.text(eLines, margin + 2, y); y += eLines.length * 4 + 1;
+      checkPage(8);
+      const eL = doc.splitTextToSize("\u2192 " + e, lineW - 10);
+      doc.text(eL, margin + 8, y); y += eL.length * 3.8 + 1;
     });
     y += 1;
+
     // Reflection
     checkPage(12);
-    doc.setFont("helvetica", "italic"); doc.setFontSize(9); doc.setTextColor(100);
-    const refLines = doc.splitTextToSize("Reflection: " + ins.reflection, lineW);
-    doc.text(refLines, margin, y); y += refLines.length * 4 + 6;
+    doc.setFillColor(r, g, b, 0.06);
+    const refText = doc.splitTextToSize(ins.reflection, lineW - 14);
+    const refH = refText.length * 3.8 + 8;
+    doc.setFillColor(240 + r*0.05, 240 + g*0.05, 240 + b*0.05);
+    doc.roundedRect(margin + 4, y - 1, lineW - 4, refH, 2, 2, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); doc.setTextColor(r,g,b);
+    doc.text("REFLECTION", margin + 8, y + 3);
+    doc.setFont("helvetica", "italic"); doc.setFontSize(8.5); doc.setTextColor(100,100,100);
+    doc.text(refText, margin + 8, y + 7); y += refH + 4;
+
+    // Divider
+    if (k !== pKeys[pKeys.length - 1]) {
+      doc.setDrawColor(220,218,210); doc.line(margin + 20, y, W - margin - 20, y); y += 6;
+    }
   });
 
-  // Cross-trait
+  // Cross-trait insights
   const cross = getCross(pScores, name);
   if (cross.length > 0) {
     checkPage(20);
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(61, 64, 91);
-    doc.text("How Your Traits Interact", margin, y); y += 7;
+    y += 4;
+    doc.setFillColor(...hex(NAVY));
+    doc.roundedRect(margin, y, lineW, 8, 3, 3, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(255,255,255);
+    doc.text("HOW YOUR TRAITS INTERACT", margin + 4, y + 5.5);
+    y += 12;
     cross.forEach(c => {
-      checkPage(15);
-      doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(80);
-      doc.text(c.i + " " + c.t, margin, y); y += 4;
-      doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(80);
-      const cLines = doc.splitTextToSize(c.x, lineW);
-      doc.text(cLines, margin, y); y += cLines.length * 4 + 4;
+      checkPage(14);
+      doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(...hex(NAVY));
+      doc.text(c.t, margin + 2, y); y += 4;
+      doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(80,80,80);
+      const cL = doc.splitTextToSize(c.x, lineW - 4);
+      doc.text(cL, margin + 2, y); y += cL.length * 4 + 5;
     });
   }
 
-  // Wellness Section
-  doc.addPage(); y = 20;
-  doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(61, 64, 91);
-  doc.text("Wellness Profile", margin, y); y += 10;
+  // ── WELLNESS DETAIL PAGES ──
+  doc.addPage(); y = 0;
+  doc.setFillColor(...hex(GREEN));
+  doc.rect(0, 0, W, 16, "F");
+  doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(255,255,255);
+  doc.text("Wellness Profile", W/2, 11, { align: "center" });
+  y = 24;
 
   wKeys.forEach(k => {
-    checkPage(30);
-    const d = WELL[k], s = wScores[k], lv = wLvl(s), ins = W_INS[k][lv];
-    doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(45, 45, 45);
-    doc.text(`${d.icon} ${d.label}: ${s}%`, margin, y); y += 6;
-    doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(80);
-    const sLines = doc.splitTextToSize(ins.s, lineW);
-    doc.text(sLines, margin, y); y += sLines.length * 4.5 + 3;
-    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(61, 64, 91);
-    doc.text("Action Steps:", margin, y); y += 4;
-    doc.setFont("helvetica", "normal"); doc.setTextColor(80);
+    checkPage(35);
+    const d = WELL[k], s = wScores[k], lv = wLvl(s), ins = W_INS[k][lv], c = wColors[k] || NAVY;
+    const [r,g,b] = hex(c);
+
+    // Colored left border
+    doc.setFillColor(r,g,b);
+    doc.rect(margin, y, 2.5, 6, "F");
+
+    // Label + score
+    doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(45,45,45);
+    doc.text(d.label, margin + 6, y + 4.5);
+    doc.setFontSize(13); doc.setTextColor(r,g,b);
+    doc.text(`${s}%`, W - margin, y + 4.5, { align: "right" });
+
+    // Score bar
+    drawBar(margin + 6, y + 7, lineW - 6, s, c);
+    y += 13;
+
+    // Summary
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9.5); doc.setTextColor(80,80,80);
+    const sL = doc.splitTextToSize(ins.s, lineW - 6);
+    doc.text(sL, margin + 6, y); y += sL.length * 4 + 3;
+
+    // Action steps
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(r,g,b);
+    doc.text("ACTION STEPS", margin + 6, y); y += 4;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(80,80,80);
     ins.t.forEach(tip => {
-      checkPage(10);
-      const tLines = doc.splitTextToSize("\u2192 " + tip, lineW - 4);
-      doc.text(tLines, margin + 2, y); y += tLines.length * 4 + 1;
+      checkPage(8);
+      const tL = doc.splitTextToSize("\u2192 " + tip, lineW - 10);
+      doc.text(tL, margin + 8, y); y += tL.length * 3.8 + 1.5;
     });
-    y += 6;
+    y += 4;
+
+    // Divider
+    if (k !== wKeys[wKeys.length - 1]) {
+      doc.setDrawColor(220,218,210); doc.line(margin + 20, y, W - margin - 20, y); y += 6;
+    }
   });
 
-  // PW Cross
+  // PW Cross-insights
   const pwc = getPWCross(pScores, wScores, name);
   if (pwc.length > 0) {
     checkPage(20);
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(61, 64, 91);
-    doc.text("Personality \u00D7 Wellness Insights", margin, y); y += 7;
+    y += 4;
+    doc.setFillColor(...hex(NAVY));
+    doc.roundedRect(margin, y, lineW, 8, 3, 3, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(255,255,255);
+    doc.text("PERSONALITY \u00D7 WELLNESS INSIGHTS", margin + 4, y + 5.5);
+    y += 12;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(140,140,140);
+    doc.text("Connecting who you are to how you're doing.", margin + 2, y); y += 6;
     pwc.forEach(c => {
-      checkPage(15);
-      doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(80);
-      doc.text(c.i + " " + c.t, margin, y); y += 4;
-      doc.setFont("helvetica", "normal");
-      const cLines = doc.splitTextToSize(c.x, lineW);
-      doc.text(cLines, margin, y); y += cLines.length * 4 + 4;
+      checkPage(14);
+      doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(...hex(NAVY));
+      doc.text(c.t, margin + 2, y); y += 4;
+      doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(80,80,80);
+      const cL = doc.splitTextToSize(c.x, lineW - 4);
+      doc.text(cL, margin + 2, y); y += cL.length * 4 + 5;
     });
   }
+
+  // Footer on last page
+  y = H - 12;
+  doc.setFont("helvetica", "italic"); doc.setFontSize(8); doc.setTextColor(180,180,180);
+  doc.text("Know Yourself \u2014 Personality & Wellness Profile", W/2, y, { align: "center" });
 
   doc.save(`${name}_Know_Yourself_Profile.pdf`);
 }
