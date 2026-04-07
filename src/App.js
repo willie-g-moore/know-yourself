@@ -245,6 +245,57 @@ function getPWCross(p, w, n) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   TOP 3 PRIORITIES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+function getTop3(pS, wS, name) {
+  const areas = [
+    { key: "mental", label: "Mental Wellness", icon: "\u{1F9E0}", score: wS.mental, color: "#6A8EAE" },
+    { key: "social", label: "Social Wellness", icon: "\u{1F91D}", score: wS.social, color: "#81B29A" },
+    { key: "intellectual", label: "Intellectual Wellness", icon: "\u{1F4DA}", score: wS.intellectual, color: "#E07A5F" },
+    { key: "financial", label: "Financial Wellness", icon: "\u{1F4B0}", score: wS.financial, color: "#D4A04A" },
+    { key: "occupational", label: "Occupational Wellness", icon: "\u{1F3AF}", score: wS.occupational, color: "#3D405B" },
+  ];
+  areas.forEach(a => {
+    let u = 100 - a.score;
+    if (a.key==="mental"&&pS.neuroticism>=55) u+=15;
+    if (a.key==="mental"&&pS.conscientiousness>=60) u+=5;
+    if (a.key==="financial"&&pS.conscientiousness<45) u+=10;
+    if (a.key==="social"&&pS.extraversion<45) u+=5;
+    if (a.key==="social"&&pS.agreeableness<45) u+=5;
+    if (a.key==="occupational"&&pS.agreeableness>=55) u+=5;
+    if (a.key==="intellectual"&&pS.openness<45) u+=5;
+    a.urgency = u;
+  });
+  areas.sort((a,b) => b.urgency - a.urgency);
+  const top = areas.slice(0, 3);
+  const priorities = [];
+  top.forEach((a, rank) => {
+    let why = "", doThis = "";
+    if (a.key==="mental") {
+      if (pS.neuroticism>=55) { why=`Your emotional sensitivity means stress hits you harder than most. Without strong mental wellness habits, everything else suffers \u2014 relationships, school, career, finances. This is your foundation.`; doThis=`This week: establish one non-negotiable daily stress practice. A 10-minute walk, journaling before bed, or a guided meditation. Pick one and do it every single day.`; }
+      else if (pS.conscientiousness>=55) { why=`You're disciplined enough to push through burnout without realizing it. Your mental wellness score suggests you're running on fumes. Rest isn't laziness \u2014 for you, it's strategic.`; doThis=`This week: block 30 minutes of genuine downtime on your calendar every day. Treat it like a meeting you can't cancel.`; }
+      else { why=`Mental wellness is the foundation everything else is built on. When stress, sleep, or emotional health are off, every other area feels harder than it needs to.`; doThis=`This week: pick the ONE thing most affecting your mental health (sleep, stress, self-talk, screen time) and make one small change.`; }
+    } else if (a.key==="financial") {
+      if (pS.conscientiousness<45) { why=`Your spontaneous personality means financial discipline won't come naturally \u2014 which is exactly why you need systems doing the work for you. Automate now, thank yourself later.`; doThis=`This week: set up one automatic system \u2014 auto-transfer even $10 to savings, or auto-pay one bill. Remove the need for willpower.`; }
+      else { why=`Financial stress is one of the biggest drivers of anxiety and relationship strain. Getting even basic control over your money will reduce stress across your entire life.`; doThis=`This week: download a free budgeting app and track every dollar you spend for 7 days. Awareness is the first step.`; }
+    } else if (a.key==="social") {
+      if (pS.extraversion<45) { why=`As someone who recharges alone, it's easy to let social connections fade without noticing. But even introverts need deep, meaningful relationships to thrive.`; doThis=`This week: reach out to one person you care about but haven't talked to recently. A simple 'thinking of you' text is enough.`; }
+      else if (pS.agreeableness<45) { why=`Your direct communication style is a strength, but it may be creating distance in relationships you value. Small adjustments in warmth make a big difference.`; doThis=`This week: in one conversation, practice leading with curiosity instead of your opinion. Ask a question and really listen.`; }
+      else { why=`Humans are wired for connection. Loneliness, inauthenticity, or one-sided relationships drain energy from everything else you're trying to build.`; doThis=`This week: have one honest conversation where you share something real \u2014 not just surface-level updates.`; }
+    } else if (a.key==="occupational") {
+      if (pS.agreeableness>=55) { why=`Your agreeable nature may have led you down a path that serves others more than yourself. Career clarity often starts with asking: what do I actually want?`; doThis=`This week: write down 3 things you'd do if nobody's expectations mattered. Then ask how far your current path is from those things.`; }
+      else { why=`Without direction or purpose, motivation becomes a daily battle. You don't need a perfect plan \u2014 you need enough clarity to take the next step.`; doThis=`This week: have one conversation with someone in a field that interests you. Ask what they love and what they'd change.`; }
+    } else if (a.key==="intellectual") {
+      if (pS.openness<45) { why=`Your practical nature means you might not seek learning for its own sake \u2014 but intellectual growth directly impacts your career and problem-solving.`; doThis=`This week: find one practical skill to learn that directly helps a goal you already have.`; }
+      else { why=`Your mind needs regular challenges to stay sharp. When intellectual wellness drops, boredom and stagnation follow \u2014 affecting motivation everywhere.`; doThis=`This week: replace 30 minutes of passive scrolling with something that makes you think \u2014 a podcast, an article, a real conversation.`; }
+    }
+    priorities.push({ rank: rank+1, label: a.label, icon: a.icon, score: a.score, color: a.color, why, doThis });
+  });
+  return priorities;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    WELLNESS INSIGHTS
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -315,6 +366,27 @@ function exportPDF(name, pScores, wScores, pKeys, wKeys) {
   doc.setFontSize(11); doc.setFont("helvetica", "normal"); doc.setTextColor(150);
   doc.text("Know Yourself \u2014 Personality & Wellness Assessment", W / 2, y, { align: "center" }); y += 4;
   doc.text(new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), W / 2, y, { align: "center" }); y += 12;
+
+  // Top 3 Priorities
+  const top3 = getTop3(pScores, wScores, name);
+  doc.setDrawColor(200); doc.line(margin, y, W - margin, y); y += 8;
+  doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(61, 64, 91);
+  doc.text("\u{1F3AF} YOUR TOP 3 PRIORITIES", margin, y); y += 6;
+  doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(120);
+  doc.text("If you do nothing else, focus here. Ranked by impact based on your unique profile.", margin, y); y += 8;
+  top3.forEach(p => {
+    checkPage(30);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(45, 45, 45);
+    doc.text(`#${p.rank}  ${p.icon} ${p.label} (${p.score}%)`, margin, y); y += 6;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(80);
+    const whyLines = doc.splitTextToSize(p.why, lineW);
+    doc.text(whyLines, margin, y); y += whyLines.length * 4.5 + 2;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(61, 64, 91);
+    doc.text("Your One Action:", margin, y); y += 4;
+    doc.setFont("helvetica", "normal"); doc.setTextColor(80);
+    const doLines = doc.splitTextToSize(p.doThis, lineW);
+    doc.text(doLines, margin, y); y += doLines.length * 4 + 8;
+  });
 
   // Personality Section
   doc.setDrawColor(200); doc.line(margin, y, W - margin, y); y += 8;
@@ -661,6 +733,30 @@ export default function App() {
         <div ref={ref} style={{ maxWidth: 540, margin: "0 auto" }}>
           <button onClick={() => setScreen("hub")} style={{ background: "none", border: "none", color: "#999", fontSize: 14, cursor: "pointer", fontFamily: "'IBM Plex Sans', sans-serif", marginBottom: 16, paddingTop: 8 }}>{"\u2190"} Back to Hub</button>
           <div style={{ textAlign: "center", marginBottom: 32 }}><div style={{ fontSize: 40, marginBottom: 4 }}>{"\u25C9"}</div><h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, color: "#2d2d2d" }}>{showP ? `${name}'s Complete Profile` : `${name}'s Wellness Profile`}</h1></div>
+          {showP && (() => { const top3 = getTop3(pS, wS, name); return (
+            <div style={{ background: "linear-gradient(135deg, #E07A5F 0%, #D4A04A 50%, #81B29A 100%)", borderRadius: 20, padding: 3, marginBottom: 24 }}>
+              <div style={{ background: "#faf9f6", borderRadius: 18, padding: 24 }}>
+                <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 20, color: "#2d2d2d", marginBottom: 4, textAlign: "center" }}>{"\u{1F3AF}"} Your Top 3 Priorities</h2>
+                <p style={{ fontSize: 13, color: "#999", textAlign: "center", marginBottom: 20 }}>If you do nothing else, focus here. Ranked by impact based on your unique profile.</p>
+                {top3.map((p, i) => (
+                  <div key={i} style={{ background: "#fff", borderRadius: 14, padding: 20, marginBottom: i < 2 ? 12 : 0, borderLeft: `4px solid ${p.color}`, boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: "50%", background: p.color + "20", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: p.color, fontFamily: "'DM Serif Display', serif", flexShrink: 0 }}>{p.rank}</div>
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: 15, color: "#2d2d2d" }}>{p.icon} {p.label}</div>
+                        <div style={{ fontSize: 12, color: p.color, fontWeight: 600 }}>Score: {p.score}%</div>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: 13, color: "#666", lineHeight: 1.6, marginBottom: 10 }}>{p.why}</p>
+                    <div style={{ background: p.color + "10", borderRadius: 8, padding: 12 }}>
+                      <p style={{ fontSize: 12, fontWeight: 600, color: p.color, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>{"\u{1F4CC}"} Your One Action</p>
+                      <p style={{ fontSize: 13, color: "#555", lineHeight: 1.5 }}>{p.doThis}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ); })()}
           {showP && (
             <div style={{ ...card, borderRadius: 20, padding: 24, boxShadow: "0 2px 20px rgba(0,0,0,0.06)", marginBottom: 24 }}>
               <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: "#2d2d2d", marginBottom: 16, textAlign: "center" }}>Personality Profile</h2>
