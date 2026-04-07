@@ -97,7 +97,7 @@ const WELL = {
   mental: {
     label: "Mental Wellness", subtitle: "Stress management, emotional health & self-care", icon: "\u{1F9E0}", color: "#6A8EAE",
     questions: [
-      { text: "I have healthy ways to cope when I'm stressed.", desc: "Exercise, talking to someone, journaling — not just numbing out.", dir: 1 },
+      { text: "I have healthy ways to cope when I'm stressed.", desc: "Exercise, talking to someone, journaling \u2014 not just numbing out.", dir: 1 },
       { text: "I get enough quality sleep most nights (7-9 hours).", dir: 1 },
       { text: "I often feel overwhelmed by my responsibilities or the uncertainty of what's next.", dir: -1 },
       { text: "I regularly do something that brings me joy or relaxation.", desc: "A hobby, time outdoors, creative activity \u2014 something just for you.", dir: 1 },
@@ -105,9 +105,9 @@ const WELL = {
       { text: "I tend to be very self-critical when I make mistakes.", dir: -1 },
       { text: "I feel generally optimistic about where my life is heading after this chapter ends.", dir: 1 },
       { text: "I know when to ask for help and feel comfortable doing so.", dir: 1 },
-      { text: "I use substances (alcohol, drugs, nicotine) to manage stress or emotions.", desc: "Even casually — think about whether it's become a go-to coping method.", dir: -1 },
-      { text: "I engage in regular physical activity that supports my mental health.", desc: "Walking, gym, sports, yoga — anything that gets you moving.", dir: 1 },
-      { text: "I talk to myself in a way that is mostly encouraging rather than harsh.", desc: "Your inner voice — is it a coach or a critic?", dir: 1 },
+      { text: "I have at least one person I can talk to when I'm going through a hard time.", dir: 1 },
+      { text: "I frequently feel anxious about things I can't control.", dir: -1 },
+      { text: "I talk to myself in a way that is mostly encouraging rather than harsh.", desc: "Your inner voice \u2014 is it a coach or a critic?", dir: 1 },
       { text: "I spend more time on screens than I'd like, and it affects my mood or sleep.", dir: -1 },
     ],
   },
@@ -179,6 +179,23 @@ const WELL = {
       { text: "I often feel like I'm just going through the motions without real purpose.", dir: -1 },
     ],
   },
+  physical: {
+    label: "Physical Wellness", subtitle: "Exercise, nutrition & taking care of your body", icon: "\u{1F4AA}", color: "#A8577E",
+    questions: [
+      { text: "I exercise or do some form of physical activity at least 3 times a week.", desc: "Walking, gym, sports, yoga, dancing \u2014 anything that gets your body moving.", dir: 1 },
+      { text: "I eat in a way that gives me consistent energy throughout the day.", desc: "Not about dieting \u2014 do you generally fuel your body well?", dir: 1 },
+      { text: "I often skip meals or rely on fast food and convenience snacks.", dir: -1 },
+      { text: "I drink enough water throughout the day.", dir: 1 },
+      { text: "My body generally feels good \u2014 I'm not constantly tired, sore, or run down.", dir: 1 },
+      { text: "I use substances (alcohol, drugs, nicotine) in ways that affect my physical health.", desc: "Think honestly about frequency and impact, not just whether you use them.", dir: -1 },
+      { text: "I have a consistent sleep routine that my body responds well to.", desc: "Going to bed and waking up at roughly the same time, winding down before sleep.", dir: 1 },
+      { text: "I pay attention to what my body is telling me.", desc: "When you're exhausted, hungry, tense, or getting sick \u2014 do you listen or push through?", dir: 1 },
+      { text: "I spend long stretches sitting without moving and it affects how I feel.", desc: "Back pain, stiffness, low energy from being sedentary.", dir: -1 },
+      { text: "I have physical activities or sports that I genuinely enjoy, not just force myself to do.", dir: 1 },
+      { text: "I feel confident and comfortable in my body most of the time.", desc: "Not about appearance \u2014 do you feel capable, strong, and at home in your body?", dir: 1 },
+      { text: "I neglect my physical health when I'm busy or stressed.", desc: "Exercise stops, eating gets worse, sleep suffers \u2014 your body pays the price.", dir: -1 },
+    ],
+  },
 };
 
 const SCALE = ["Strongly Disagree","Disagree","Slightly Disagree","Neutral","Slightly Agree","Agree","Strongly Agree"];
@@ -241,6 +258,9 @@ function getPWCross(p, w, n) {
   if (p.neuroticism<45&&w.social>=60) r.push({i:"\u2693",t:"Emotional Stability + Social Strength",x:`Your calm presence makes others gravitate to you in stressful times. Use this in leadership and mentoring.`});
   if (p.openness<45&&w.intellectual<50) r.push({i:"\u{1F50D}",t:"Practical Nature + Intellectual Engagement",x:`You may not seek learning for its own sake. Find practical reasons to grow — a new skill that directly helps your career kills two birds with one stone.`});
   if (p.agreeableness<45&&w.social<50) r.push({i:"\u{1F6E1}\uFE0F",t:"Directness + Social Challenges",x:`Your direct style may be contributing to lower social wellness. You don't need to become a people-pleaser — but warmth alongside honesty strengthens relationships.`});
+  if (p.neuroticism>=55&&w.physical<50) r.push({i:"\u{1F4AA}",t:"Emotional Sensitivity + Physical Wellness",x:`Exercise is one of the most powerful anxiety-management tools available — and it's free. Your body regulates your emotions more than you realize. Prioritizing physical activity will directly improve your mental wellness too.`});
+  if (p.conscientiousness<45&&w.physical<50) r.push({i:"\u{1F3C3}",t:"Spontaneous Nature + Physical Wellness",x:`Rigid workout plans and strict diets probably won't stick for you. Find activities that feel like play, not obligation. A pickup basketball game beats a spreadsheet training program every time for your personality.`});
+  if (p.conscientiousness>=55&&w.physical>=60) r.push({i:"\u{1F3C6}",t:"Discipline + Physical Strength",x:`Your disciplined nature and solid physical habits are a powerful combination. Just make sure fitness doesn't become another perfectionism trap — rest days are part of the program, not failures.`});
   return r;
 }
 
@@ -255,6 +275,7 @@ function getTop3(pS, wS, name) {
     { key: "intellectual", label: "Intellectual Wellness", icon: "\u{1F4DA}", score: wS.intellectual, color: "#E07A5F" },
     { key: "financial", label: "Financial Wellness", icon: "\u{1F4B0}", score: wS.financial, color: "#D4A04A" },
     { key: "occupational", label: "Occupational Wellness", icon: "\u{1F3AF}", score: wS.occupational, color: "#3D405B" },
+    { key: "physical", label: "Physical Wellness", icon: "\u{1F4AA}", score: wS.physical, color: "#A8577E" },
   ];
   areas.forEach(a => {
     let u = 100 - a.score;
@@ -265,6 +286,8 @@ function getTop3(pS, wS, name) {
     if (a.key==="social"&&pS.agreeableness<45) u+=5;
     if (a.key==="occupational"&&pS.agreeableness>=55) u+=5;
     if (a.key==="intellectual"&&pS.openness<45) u+=5;
+    if (a.key==="physical"&&pS.neuroticism>=55) u+=5;
+    if (a.key==="physical"&&pS.conscientiousness<45) u+=5;
     a.urgency = u;
   });
   areas.sort((a,b) => b.urgency - a.urgency);
@@ -289,6 +312,10 @@ function getTop3(pS, wS, name) {
     } else if (a.key==="intellectual") {
       if (pS.openness<45) { why=`Your practical nature means you might not seek learning for its own sake \u2014 but intellectual growth directly impacts your career and problem-solving.`; doThis=`This week: find one practical skill to learn that directly helps a goal you already have.`; }
       else { why=`Your mind needs regular challenges to stay sharp. When intellectual wellness drops, boredom and stagnation follow \u2014 affecting motivation everywhere.`; doThis=`This week: replace 30 minutes of passive scrolling with something that makes you think \u2014 a podcast, an article, a real conversation.`; }
+    } else if (a.key==="physical") {
+      if (pS.conscientiousness<45) { why=`Your spontaneous personality means exercise routines and meal planning feel like a chore. The key is finding physical activities you actually enjoy \u2014 not forcing yourself into a rigid program.`; doThis=`This week: try one physical activity purely for fun \u2014 not because you should, but because it sounds enjoyable. A pickup game, a hike, dancing, anything.`; }
+      else if (pS.neuroticism>=55) { why=`Physical activity is one of the most powerful tools for managing the emotional intensity you experience. Your body and mind are deeply connected \u2014 when your body feels good, your anxiety has less power.`; doThis=`This week: move your body for at least 20 minutes on 3 different days. Walk, stretch, lift \u2014 whatever feels right. Notice how your mind feels afterward.`; }
+      else { why=`Your body is the vehicle for everything else in your life. When physical health declines, energy drops, sleep suffers, stress increases, and every other wellness dimension takes a hit.`; doThis=`This week: pick one physical habit to improve \u2014 more water, more movement, better food, or a consistent sleep time. Just one.`; }
     }
     priorities.push({ rank: rank+1, label: a.label, icon: a.icon, score: a.score, color: a.color, why, doThis });
   });
@@ -324,6 +351,11 @@ const W_INS = {
     high:{s:"Clear direction, engagement, purpose, and healthy balance. You're building toward something.",t:["Keep developing skills — don't stagnate","Mentor someone earlier in their journey","Check that your direction still aligns with your evolving values"]},
     mid:{s:"Some direction but you may feel uncertain, unfulfilled, or out of balance. You might know what you don't want but not what you do.",t:["Talk to 3 people in fields that interest you","Identify your top 3 strengths and brainstorm roles using all three","If you're on someone else's path, start exploring what YOU want","Set one professional development goal for the next 90 days"]},
     low:{s:"Career direction, purpose, or balance is a significant challenge. You may feel lost, burned out, or on someone else's path.",t:["It's okay to not know — but keep exploring. Try one new thing this month.","If burned out, fix that first before making big decisions","What are you good at AND enjoy? The overlap is where your career lives","Give yourself permission to question the path others chose for you","Talk to a career counselor, mentor, or trusted friend"]},
+  },
+  physical: {
+    high:{s:"You take good care of your body. You move regularly, fuel yourself well, and listen to what your body needs. This is a strong foundation for everything else.",t:["Keep your routine but add variety to prevent plateaus and boredom","Consider how your physical habits support your mental health specifically","Challenge yourself with a new physical goal \u2014 a race, a new sport, a strength milestone"]},
+    mid:{s:"You have some decent physical habits but clear gaps \u2014 maybe inconsistent exercise, poor nutrition when stressed, or ignoring your body's signals.",t:["Identify your weakest link: exercise, nutrition, sleep routine, or hydration. Focus there first.","Find a physical activity you genuinely enjoy \u2014 consistency comes from enjoyment, not willpower","Meal prep one day a week to avoid defaulting to convenience food","Set a daily water goal and track it for one week"]},
+    low:{s:"Physical wellness needs attention. Whether it's inactivity, poor nutrition, substance use, or ignoring your body's needs \u2014 this is affecting your energy, mood, and overall quality of life.",t:["Start small: a 15-minute walk daily is better than a gym plan you won't follow","Your body and mind are connected \u2014 low physical wellness drags down mental wellness too","Eat one real meal per day if that's all you can manage right now. Build from there.","If substances are a factor, be honest about what they're costing you physically","Drink more water. Seriously. It affects energy, focus, and mood more than most people realize."]},
   },
 };
 
@@ -429,7 +461,7 @@ function exportPDF(name, pScores, wScores, pKeys, wKeys) {
   doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(...hex(NAVY));
   doc.text("WELLNESS SNAPSHOT", margin, y); y += 6;
 
-  const wColors = { mental: BLUE, social: GREEN, intellectual: CORAL, financial: GOLD, occupational: NAVY };
+  const wColors = { mental: BLUE, social: GREEN, intellectual: CORAL, financial: GOLD, occupational: NAVY, physical: PURPLE };
   wKeys.forEach(k => {
     const d = WELL[k], s = wScores[k], c = wColors[k] || NAVY;
     doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(100,100,100);
@@ -748,31 +780,72 @@ export default function App() {
 
   // ── WELCOME ──
   if (screen === "welcome") {
+    const wellGrid = [
+      { icon: "\u{1F9E0}", label: "Mental", sub: "Stress & self-care", bg: "#6A8EAE" },
+      { icon: "\u{1F91D}", label: "Social", sub: "Relationships", bg: "#81B29A" },
+      { icon: "\u{1F4DA}", label: "Intellectual", sub: "Growth & curiosity", bg: "#E07A5F" },
+      { icon: "\u{1F4B0}", label: "Financial", sub: "Money & planning", bg: "#D4A04A" },
+      { icon: "\u{1F3AF}", label: "Occupational", sub: "Purpose & direction", bg: "#3D405B" },
+      { icon: "\u{1F4AA}", label: "Physical", sub: "Exercise & nutrition", bg: "#A8577E" },
+    ];
     return (
-      <div style={{ ...pg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={pg}>
         <style>{fonts}{base}</style>
-        <div ref={ref} style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>{"\u25C9"}</div>
-          <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 32, color: "#2d2d2d", marginBottom: 8 }}>Know Yourself</h1>
-          <p style={{ fontSize: 15, color: "#777", marginBottom: 40, lineHeight: 1.6 }}>A personality & wellness profile built around who you actually are.</p>
-          <div style={{ textAlign: "left", ...card, padding: 28, borderRadius: 16, boxShadow: "0 2px 20px rgba(0,0,0,0.06)", marginBottom: 32 }}>
-            <p style={{ fontSize: 14, color: "#888", marginBottom: 16, fontWeight: 500, textTransform: "uppercase", letterSpacing: 1 }}>What you'll discover</p>
-            <div style={{ fontSize: 15, color: "#555", lineHeight: 1.8 }}>
-              <p style={{ marginBottom: 8 }}>{"\u{1F9EC}"} <strong>Personality profile</strong> — 60 questions across the Big Five</p>
-              <p style={{ marginBottom: 8 }}>{"\u{1F9E0}"} <strong>Mental wellness</strong> — stress, sleep, coping, self-talk</p>
-              <p style={{ marginBottom: 8 }}>{"\u{1F91D}"} <strong>Social wellness</strong> — relationships, boundaries, authenticity</p>
-              <p style={{ marginBottom: 8 }}>{"\u{1F4DA}"} <strong>Intellectual wellness</strong> — curiosity, critical thinking, growth</p>
-              <p style={{ marginBottom: 8 }}>{"\u{1F4B0}"} <strong>Financial wellness</strong> — habits, literacy, planning</p>
-              <p>{"\u{1F3AF}"} <strong>Occupational wellness</strong> — purpose, direction, balance</p>
+        <div ref={ref} style={{ maxWidth: 480, width: "100%", margin: "0 auto" }}>
+          {/* Header */}
+          <div style={{ background: "#3D405B", borderRadius: 20, padding: "24px 22px 20px", display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 24 }}>
+            <div style={{ width: 42, height: 42, borderRadius: "50%", background: "rgba(129,178,154,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1.5px solid rgba(129,178,154,0.35)", marginTop: 2 }}>
+              <span style={{ fontSize: 19, color: "#81B29A" }}>{"\u25C9"}</span>
+            </div>
+            <div>
+              <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, color: "#fff", margin: 0, letterSpacing: -0.3 }}>Know Yourself</h1>
+              <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.5)", margin: "6px 0 0", lineHeight: 1.5 }}>A personality & wellness profile built around who you actually are.</p>
             </div>
           </div>
+
+          {/* What you'll complete */}
+          <div style={{ background: "#fff", borderRadius: 14, padding: 18, marginBottom: 20, border: "0.5px solid #E8E5DD" }}>
+            <p style={{ fontSize: 10, color: "#aaa", fontWeight: 500, textTransform: "uppercase", letterSpacing: 1.2, margin: "0 0 14px" }}>What you'll complete</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, marginBottom: 14, borderBottom: "0.5px solid #f0ece2" }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: "#3D405B10", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><span style={{ fontSize: 16 }}>{"\u{1F9EC}"}</span></div>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#2d2d2d", margin: 0 }}>Personality profile</p>
+                <p style={{ fontSize: 11, color: "#999", margin: "2px 0 0" }}>Big Five model {"\u00B7"} 60 questions {"\u00B7"} ~15 min</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: "#81B29A10", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><span style={{ fontSize: 16 }}>{"\u2696\uFE0F"}</span></div>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#2d2d2d", margin: 0 }}>Wellness assessment</p>
+                <p style={{ fontSize: 11, color: "#999", margin: "2px 0 0" }}>6 dimensions {"\u00B7"} 72 questions {"\u00B7"} ~18 min</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 2x3 Wellness Grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 24 }}>
+            {wellGrid.map((w, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: w.bg + "08", borderRadius: 10, border: `0.5px solid ${w.bg}15` }}>
+                <span style={{ fontSize: 15 }}>{w.icon}</span>
+                <div>
+                  <p style={{ fontSize: 12, color: "#444", fontWeight: 500, margin: 0 }}>{w.label}</p>
+                  <p style={{ fontSize: 10, color: "#aaa", margin: 0 }}>{w.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Name Input */}
           <input type="text" placeholder="Your first name" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && name.trim()) setScreen("hub"); }}
-            style={{ width: "100%", padding: "14px 20px", fontSize: 16, border: "2px solid #e0ddd5", borderRadius: 12, outline: "none", fontFamily: "'IBM Plex Sans', sans-serif", background: "#fff", marginBottom: 16 }}
-            onFocus={e => e.target.style.borderColor = "#81B29A"} onBlur={e => e.target.style.borderColor = "#e0ddd5"} />
+            style={{ width: "100%", padding: "14px 16px", fontSize: 15, border: "1.5px solid #E0DDD5", borderRadius: 12, outline: "none", fontFamily: "'IBM Plex Sans', sans-serif", background: "#fff", marginBottom: 14 }}
+            onFocus={e => e.target.style.borderColor = "#81B29A"} onBlur={e => e.target.style.borderColor = "#E0DDD5"} />
           <button onClick={() => { if (name.trim()) setScreen("hub"); }} disabled={!name.trim()}
-            style={{ ...btnS(name.trim() ? "#3D405B" : "#ccc"), padding: "16px", fontSize: 16, cursor: name.trim() ? "pointer" : "default" }}>Let's Go</button>
-          <p style={{ fontSize: 12, color: "#aaa", marginTop: 16 }}>120 questions {"\u00B7"} ~15 min personality {"\u00B7"} ~15 min wellness {"\u00B7"} Progress saves automatically</p>
-          <p style={{ fontSize: 11, color: "#bbb", marginTop: 8, lineHeight: 1.5, padding: "0 12px" }}>{"\u{1F4BE}"} Your progress saves to this browser automatically. To pick up where you left off later, come back on the <strong>same device and browser</strong> you started on.</p>
+            style={{ ...btnS(name.trim() ? "#3D405B" : "#ccc"), padding: "15px", fontSize: 15, cursor: name.trim() ? "pointer" : "default", marginBottom: 20 }}>Let's Go</button>
+
+          {/* Save reminder */}
+          <div style={{ background: "#f5f3ee", borderRadius: 10, padding: "12px 14px", marginBottom: 16 }}>
+            <p style={{ fontSize: 11, color: "#999", textAlign: "center", margin: 0, lineHeight: 1.6 }}>Your progress saves automatically to this browser. To finish later, come back on the <strong style={{ color: "#777" }}>same device and browser</strong> you started on.</p>
+          </div>
         </div>
       </div>
     );
@@ -808,7 +881,7 @@ export default function App() {
           {/* Wellness */}
           <div style={{ marginBottom: 32 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}><span style={{ fontSize: 20 }}>{"\u2696\uFE0F"}</span><h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 20, color: "#2d2d2d" }}>Wellness Assessment</h2>{wDone && <span style={{ background: "#81B29A", color: "#fff", fontSize: 11, padding: "2px 10px", borderRadius: 20, fontWeight: 600 }}>COMPLETE</span>}</div>
-            <p style={{ fontSize: 13, color: "#888", marginBottom: 16 }}>{pDone ? "12 questions per dimension, 60 total." : "Complete personality first — it provides context."}</p>
+            <p style={{ fontSize: 13, color: "#888", marginBottom: 16 }}>{pDone ? "12 questions per dimension, 72 total." : "Complete personality first — it provides context."}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>{wK.map(k => <Row key={k} k={k} d={WELL[k]} isDone={completed.includes(k)} locked={!pDone} sc={wS[k]} />)}</div>
             {wDone && <button onClick={() => { setScreen("w-results"); up(); }} style={{ ...btnS(), marginTop: 16 }}>View Wellness Results</button>}
           </div>
