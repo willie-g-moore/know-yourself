@@ -99,11 +99,11 @@ const WELL = {
     questions: [
       { text: "I have healthy ways to cope when I'm stressed.", desc: "Exercise, talking to someone, journaling — not just numbing out.", dir: 1 },
       { text: "I get enough quality sleep most nights (7-9 hours).", dir: 1 },
-      { text: "I often feel overwhelmed by my responsibilities.", dir: -1 },
-      { text: "I regularly do something that brings me joy or relaxation.", desc: "A hobby, time outdoors, creative activity — something just for you.", dir: 1 },
+      { text: "I often feel overwhelmed by my responsibilities or the uncertainty of what's next.", dir: -1 },
+      { text: "I regularly do something that brings me joy or relaxation.", desc: "A hobby, time outdoors, creative activity \u2014 something just for you.", dir: 1 },
       { text: "I'm able to recognize and name my emotions as I feel them.", desc: "Not just 'I feel bad' but 'I feel frustrated because...'", dir: 1 },
       { text: "I tend to be very self-critical when I make mistakes.", dir: -1 },
-      { text: "I feel generally optimistic about my future.", dir: 1 },
+      { text: "I feel generally optimistic about where my life is heading after this chapter ends.", dir: 1 },
       { text: "I know when to ask for help and feel comfortable doing so.", dir: 1 },
       { text: "I use substances (alcohol, drugs, nicotine) to manage stress or emotions.", desc: "Even casually — think about whether it's become a go-to coping method.", dir: -1 },
       { text: "I engage in regular physical activity that supports my mental health.", desc: "Walking, gym, sports, yoga — anything that gets you moving.", dir: 1 },
@@ -120,8 +120,8 @@ const WELL = {
       { text: "I actively maintain my important relationships.", desc: "Reaching out, making plans, checking in on people.", dir: 1 },
       { text: "I can express my needs clearly in relationships.", dir: 1 },
       { text: "I tend to avoid difficult conversations.", desc: "Even when something important needs to be said.", dir: -1 },
-      { text: "I feel like I belong to a community or group.", desc: "A team, friend group, club, faith community, or any group where you feel at home.", dir: 1 },
-      { text: "I make time for social activities regularly.", dir: 1 },
+      { text: "I feel like I belong to a community or group.", desc: "A team, friend group, club, faith community \u2014 something that won't disappear when your current situation changes.", dir: 1 },
+      { text: "I have important relationships that I'm confident will survive a major life transition.", desc: "Friendships that don't depend on seeing each other every day.", dir: 1 },
       { text: "I often feel like I'm performing a version of myself rather than being authentic.", desc: "Putting on a mask or acting differently than how you really feel.", dir: -1 },
       { text: "I have at least one person I can be completely honest with.", desc: "Someone you don't have to filter yourself around.", dir: 1 },
       { text: "I'm comfortable being vulnerable with people I trust.", desc: "Sharing fears, mistakes, or emotions — not just the highlight reel.", dir: 1 },
@@ -141,7 +141,7 @@ const WELL = {
       { text: "I'm open to changing my mind when presented with good evidence.", dir: 1 },
       { text: "I tend to passively consume content rather than actively engaging with it.", desc: "Scrolling without thinking vs. reading, discussing, or creating.", dir: -1 },
       { text: "I can explain my own views and the reasoning behind them.", desc: "Not just having opinions, but understanding why you hold them.", dir: 1 },
-      { text: "I've learned a meaningful new skill or topic in the past few months.", desc: "Something beyond what was required for school or work.", dir: 1 },
+      { text: "I know how to keep learning and growing without a class structure pushing me.", desc: "Can you motivate yourself to read, research, or develop skills on your own?", dir: 1 },
       { text: "I tend to avoid topics or conversations that are intellectually challenging.", dir: -1 },
     ],
   },
@@ -158,24 +158,24 @@ const WELL = {
       { text: "I could handle an unexpected expense of $500 without major stress.", dir: 1 },
       { text: "I avoid looking at my bank account because I don't want to know.", dir: -1 },
       { text: "I understand the difference between needs and wants when I spend.", desc: "And you generally make intentional choices about which is which.", dir: 1 },
-      { text: "I have some understanding of investing, retirement accounts, or building wealth.", desc: "Even basic awareness — 401k, index funds, compound growth.", dir: 1 },
-      { text: "I feel behind financially compared to where I think I should be.", dir: -1 },
+      { text: "I understand what my real monthly expenses will look like when I'm fully on my own.", desc: "Rent, utilities, insurance, food, transportation, subscriptions \u2014 the full picture.", dir: 1 },
+      { text: "I feel unprepared for the financial realities of life after school.", dir: -1 },
     ],
   },
   occupational: {
     label: "Occupational Wellness", subtitle: "Purpose, career direction & work-life balance", icon: "\u{1F3AF}", color: "#3D405B",
     questions: [
-      { text: "I have a clear sense of direction for my career or future.", dir: 1 },
-      { text: "I feel that my work or studies are meaningful.", dir: 1 },
+      { text: "I have a clear sense of direction for my career or what I want to pursue next.", dir: 1 },
+      { text: "I feel that my work or studies are preparing me for what comes after.", dir: 1 },
       { text: "I feel stuck or uncertain about what I want to do with my life.", dir: -1 },
-      { text: "I'm actively developing skills that will help my future career.", dir: 1 },
+      { text: "I'm actively developing skills that will help me in my next chapter.", desc: "Not just coursework \u2014 real skills you'll use professionally.", dir: 1 },
       { text: "I maintain a healthy balance between work/school and personal life.", dir: 1 },
       { text: "I often feel burned out or exhausted by my responsibilities.", dir: -1 },
-      { text: "I can identify my strengths and how to use them professionally.", dir: 1 },
+      { text: "I can identify my strengths and articulate them to others.", desc: "Could you explain what you're good at in an interview or to a new contact?", dir: 1 },
       { text: "I feel motivated and engaged in my daily work or studies.", dir: 1 },
       { text: "I'm pursuing a path because others expect it, not because I chose it.", desc: "A major, job, or career track that's more about pleasing others than following your own interests.", dir: -1 },
-      { text: "I've talked to people working in fields that interest me.", desc: "Informational interviews, mentors, shadowing — any real-world exposure.", dir: 1 },
-      { text: "I have a professional network or mentors I can turn to for guidance.", desc: "People in your field or desired field who know your name.", dir: 1 },
+      { text: "I've had real conversations with people working in fields that interest me.", desc: "Informational interviews, mentors, shadowing \u2014 not just Googling job descriptions.", dir: 1 },
+      { text: "I have a professional network or mentors I can reach out to after I leave school.", desc: "People who know your name and would take your call.", dir: 1 },
       { text: "I often feel like I'm just going through the motions without real purpose.", dir: -1 },
     ],
   },
@@ -599,6 +599,7 @@ export default function App() {
           <button onClick={() => { if (name.trim()) setScreen("hub"); }} disabled={!name.trim()}
             style={{ ...btnS(name.trim() ? "#3D405B" : "#ccc"), padding: "16px", fontSize: 16, cursor: name.trim() ? "pointer" : "default" }}>Let's Go</button>
           <p style={{ fontSize: 12, color: "#aaa", marginTop: 16 }}>120 questions {"\u00B7"} ~15 min personality {"\u00B7"} ~15 min wellness {"\u00B7"} Progress saves automatically</p>
+          <p style={{ fontSize: 11, color: "#bbb", marginTop: 8, lineHeight: 1.5, padding: "0 12px" }}>{"\u{1F4BE}"} Your progress saves to this browser automatically. To pick up where you left off later, come back on the <strong>same device and browser</strong> you started on.</p>
         </div>
       </div>
     );
@@ -622,6 +623,7 @@ export default function App() {
           <div style={{ textAlign: "center", marginBottom: 32, paddingTop: 16 }}>
             <p style={{ fontSize: 14, color: "#999", fontWeight: 500, textTransform: "uppercase", letterSpacing: 1 }}>Welcome back</p>
             <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, color: "#2d2d2d" }}>{name}'s Profile</h1>
+            {!allDone && <p style={{ fontSize: 11, color: "#bbb", marginTop: 8, lineHeight: 1.5 }}>{"\u{1F4BE}"} Progress saves automatically. Come back on the same device and browser to pick up where you left off.</p>}
           </div>
           {/* Personality */}
           <div style={{ marginBottom: 32 }}>
