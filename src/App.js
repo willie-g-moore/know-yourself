@@ -823,9 +823,11 @@ export default function App() {
           </div>
 
           {/* 2x3 Wellness Grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 24 }}>
+          <div style={{ background: "#fff", borderRadius: 14, padding: 14, marginBottom: 24, border: "0.5px solid #E8E5DD" }}>
+            <p style={{ fontSize: 10, color: "#aaa", fontWeight: 500, textTransform: "uppercase", letterSpacing: 1.2, margin: "0 0 12px", paddingLeft: 4 }}>6 wellness dimensions</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             {wellGrid.map((w, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: w.bg + "08", borderRadius: 10, border: `0.5px solid ${w.bg}15` }}>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: w.bg + "08", borderRadius: 10, border: `1.5px solid ${w.bg}30` }}>
                 <span style={{ fontSize: 15 }}>{w.icon}</span>
                 <div>
                   <p style={{ fontSize: 12, color: "#444", fontWeight: 500, margin: 0 }}>{w.label}</p>
@@ -833,6 +835,12 @@ export default function App() {
                 </div>
               </div>
             ))}
+            </div>
+          </div>
+
+          {/* What you'll get */}
+          <div style={{ padding: "0 4px", marginBottom: 20 }}>
+            <p style={{ fontSize: 13, color: "#666", lineHeight: 1.65, margin: 0, textAlign: "center" }}>Answer honestly and you'll get a personalized profile showing your personality type, where you're thriving, where you have room to grow, and specific actions tailored to who you are — not generic advice.</p>
           </div>
 
           {/* Name Input */}
